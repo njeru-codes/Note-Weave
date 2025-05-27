@@ -1,0 +1,1 @@
+use Quill.js editor on the frontend rathr than intergrating ne one
