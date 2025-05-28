@@ -13,7 +13,7 @@ A sleek note-taking app that lets you write naturally and automatically weaves y
 - **Cross-Platform** – Works seamlessly on desktop and web (mobile coming soon).
 
 ## 🌐 Try It Online
-🧪 Coming soon: https://noteweaver.app <br/>
+🧪 https://note-weave.vercel.app <br/>
 
 
 ## 🙋 FAQ
