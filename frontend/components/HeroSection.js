@@ -89,19 +89,26 @@ function HeroSection() {
           animate={isVisible ? "visible" : "hidden"}
           variants={imageVariants}
         >
-          <div className="relative z-0">
-            {/* Tilted Image */}
-            <img
-              src="/hero_img4.png"
-              alt="Note Weave Interface"
-              className="rotate-3 w-full h-auto rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-500 relative z-10"
-            />
+          <div className="relative z-10">
+            {/* Decorative Overlays (moved further away and behind) */}
+            <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-teal-300 opacity-40 blur-2xl rounded-full z-0 pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-56 h-56 bg-blue-300 opacity-40 blur-2xl rounded-full z-0 pointer-events-none" />
 
-            {/* Decorative Overlays */}
-            <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-teal-300 opacity-50 blur-2xl rounded-full z-0"></div>
-            <div className="absolute -top-6 -right-6 w-40 h-40 bg-blue-300 opacity-50 blur-2xl rounded-full z-0"></div>
+            {/* Screenshot Image with responsive sharpness */}
+            <div className="relative z-10">
+              <img
+                src="/hero_img5@2x.png"
+                srcSet="/hero_img5.png 1x, /hero_img5@2x.png 2x"
+                alt="Note Weave Interface"
+                className="md:rotate-3 w-full h-auto rounded-lg shadow-2xl transform md:hover:scale-105 transition-transform duration-500"
+              />
+
+              {/* Optional overlay gradient to improve readability */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-b from-white/5 to-black/10 pointer-events-none z-20" />
+            </div>
           </div>
         </motion.div>
+
       </div>
     </section>
   );

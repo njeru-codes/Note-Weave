@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { FiHome, FiFileText, FiPlusCircle, FiBookmark, FiDownload, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import {
+  FiHome,
+  FiFileText,
+  FiPlusCircle,
+  FiBookmark,
+  FiDownload,
+  FiChevronLeft,
+  FiChevronRight,
+} from 'react-icons/fi';
 
-export default function SideBar() {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
+export default function SideBar({ isCollapsed, toggleSidebar }) {
   const navItems = [
     { label: 'Home', icon: <FiHome />, href: '/home' },
     { label: 'Notes', icon: <FiFileText />, href: '/notes' },
@@ -19,16 +20,20 @@ export default function SideBar() {
   ];
 
   return (
-    <div className={`h-full fixed bg-teal-600 text-white transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
+    <div
+      className={`h-full fixed bg-teal-600 text-white transition-all duration-300 ${
+        isCollapsed ? 'w-20' : 'w-64'
+      }`}
+    >
       <div className="p-4 flex flex-col h-full">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center mb-6">
           <img
             src="/logo.png"
             alt="NoteWeave Logo"
-            className={`w-auto ${collapsed ? 'h-10' : 'h-40'}`}
+            className={`w-auto ${isCollapsed ? 'h-10' : 'h-40'}`}
           />
-          {!collapsed && <span className="mt-2 text-xl font-semibold">NoteWeave</span>}
+          {!isCollapsed && <span className="mt-2 text-xl font-semibold">NoteWeave</span>}
         </div>
 
         {/* Navigation */}
@@ -38,10 +43,12 @@ export default function SideBar() {
               <li key={label}>
                 <a
                   href={href}
-                  className={`flex items-center py-2 px-4 hover:bg-teal-700 rounded transition-all ${className || ''}`}
+                  className={`flex items-center py-2 px-4 hover:bg-teal-700 rounded transition-all ${
+                    className || ''
+                  }`}
                 >
                   <span className="text-lg">{icon}</span>
-                  {!collapsed && <span className="ml-3">{label}</span>}
+                  {!isCollapsed && <span className="ml-3">{label}</span>}
                 </a>
               </li>
             ))}
@@ -54,10 +61,10 @@ export default function SideBar() {
             onClick={toggleSidebar}
             className="w-full flex items-center justify-center py-2 hover:bg-teal-700 rounded"
           >
-            {collapsed ? <FiChevronRight /> : <FiChevronLeft />}
-            {!collapsed && <span className="ml-2">Collapse</span>}
+            {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
+            {!isCollapsed && <span className="ml-2">Collapse</span>}
           </button>
-          {!collapsed && <p className="text-center mt-2">version 1.0</p>}
+          {!isCollapsed && <p className="text-center mt-2">version 1.0</p>}
         </div>
       </div>
     </div>
