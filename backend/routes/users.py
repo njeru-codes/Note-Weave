@@ -21,21 +21,14 @@ async def login_user(user: LoginUser, response: Response, db: AsyncIOMotorDataba
             return JSONResponse(status_code=400, content={"status_code": 400})
         if not verify_password(user.password, existing_user["password"]):
             return JSONResponse(status_code=400, content={"status_code": 400})
-        user_data ={
-            "id": str(existing_user["_id"]),
-        }
+        user_data ={"id": str(existing_user["_id"]), }
         access_token = create_access_token(user_data)
         
-        response.set_cookie(
-            key="X-weaver-key",
-            value=access_token,
-            # httponly=True,
-            # max_age= 60*60*2 ,
-            # expires=60*60*2,
-            # secure=True, 
-            # samesite="lax" 
+        return JSONResponse(
+            status_code=200,
+            content ={"message": "Login successful", "X-weaver-key": access_token},
+            headers={"X-weaver-key": access_token}
         )
-        return {"message": "Login successful"}
     except Exception as error:
         print(error)
         raise HTTPException(status_code=500, detail="internal server error")
