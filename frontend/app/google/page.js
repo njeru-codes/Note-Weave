@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // For redirecting
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation'; // For redirecting and search params
 import { FaGoogle, FaFacebookF, FaEye, FaEyeSlash } from 'react-icons/fa'; // Add eye icons
 import NavBar from '@/components/NavBar'; // Adjust path as needed
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,6 +16,43 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false); // Add loading state
   const [showPassword, setShowPassword] = useState(false); // Add password reveal state
+
+  // Handle Google callback and token storage
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      setLoading(true);
+      fetch('https://note-weave-y0vf.onrender.com/auth/google/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+        body: JSON.stringify({ credential: code }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to authenticate with Google');
+          return res.json();
+        })
+        .then((data) => {
+          const token = data['X-weaver-key'];
+          if (token) {
+            localStorage.setItem('token', token);
+            setSuccess('Login successful with Google!');
+            setTimeout(() => {
+              router.push('/home');
+            }, 1500);
+          } else {
+            throw new Error('No token received');
+          }
+        })
+        .catch((err) => {
+          setError('Failed to complete Google login. Please try again.');
+          console.error('OAuth error:', err);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [searchParams, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +84,7 @@ export default function LoginPage() {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Include cookies for authentication
+        credentials: 'include',
         body: JSON.stringify({
           email,
           password,
@@ -56,8 +94,13 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok && response.status === 200) {
+        const token = data['X-weaver-key'];
+        if (token) {
+          localStorage.setItem('token', token);
+        } else {
+          console.warn('No token found in response');
+        }
         setSuccess(data.message || 'Login successful!');
-        setError('');
         setTimeout(() => {
           router.push('/home');
         }, 1500);
@@ -74,7 +117,6 @@ export default function LoginPage() {
     }
   };
 
-  // Handle Google Login by fetching the redirect URL
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
@@ -94,7 +136,6 @@ export default function LoginPage() {
       const redirectUrl = data.redirect_url;
 
       if (redirectUrl) {
-        // Redirect the user to the Google authorization URL
         window.location.href = redirectUrl;
       } else {
         throw new Error('No redirect URL received from server');
@@ -112,12 +153,8 @@ export default function LoginPage() {
       handleGoogleLogin();
     } else if (provider === 'Facebook') {
       console.log(`Logging in with ${provider}`);
-      // Implement Facebook login logic if needed
     }
   };
-
-  // Handle callback after Google login (automatic via backend redirect)
-  // Note: The backend will handle the callback and set the cookie, so no additional client-side logic is needed here.
 
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-r from-teal-700 to-teal-500 overflow-hidden">
