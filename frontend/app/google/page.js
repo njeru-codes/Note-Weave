@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // For redirecting and search params
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation'; // For redirecting
+import { useSearchParams } from 'next/navigation'; // For search params
 import { FaGoogle, FaFacebookF, FaEye, FaEyeSlash } from 'react-icons/fa'; // Add eye icons
 import NavBar from '@/components/NavBar'; // Adjust path as needed
 
-export default function LoginPage() {
+// Component to handle search params and Google callback
+function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // Use useSearchParams inside the component
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -291,5 +293,14 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Wrap the component in Suspense
+export default function LoginPageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
