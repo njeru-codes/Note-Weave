@@ -19,7 +19,7 @@ export default function NotesPage() {
       }
 
       try {
-        const response = await fetch("https://note-weave-y0vf.onrender.com/notes/", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
           method: "GET",
           headers: {
             "X-weaver-key": token,

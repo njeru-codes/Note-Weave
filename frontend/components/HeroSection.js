@@ -75,7 +75,7 @@ function HeroSection() {
             Experience <span className="font-semibold text-teal-600">{typedText}</span> <br/>— no distractions, just flow.
           </p>
           <a
-            href="/try"
+            href="/login"
             className="inline-block bg-teal-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-teal-700 transition duration-300 ease-in-out shadow-lg hover:shadow-xl"
           >
             Try Note Weave Now

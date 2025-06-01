@@ -82,7 +82,7 @@ export default function EditorPage() {
         let response;
         if (noteId) {
           // Update existing note (PUT)
-          response = await fetch(`https://note-weave-y0vf.onrender.com/notes/${noteId}`, {
+          response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/${noteId}`, {
             method: "PUT",
             headers: {
               "accept": "application/json",
@@ -96,7 +96,7 @@ export default function EditorPage() {
           });
         } else {
           // Create new note (POST)
-          response = await fetch("https://note-weave-y0vf.onrender.com/notes/", {
+          response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
             method: "POST",
             headers: {
               "accept": "application/json",

@@ -19,7 +19,7 @@ export default function NotePage() {
       setLoading(true);
       setError('');
       try {
-        const res = await fetch(`https://note-weave-y0vf.onrender.com/notes/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/${id}`, {
           headers: {
             accept: 'application/json',
             // Add auth if needed

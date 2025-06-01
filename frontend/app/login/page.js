@@ -1,85 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // For redirecting
-import { FaGoogle, FaFacebookF, FaEye, FaEyeSlash } from 'react-icons/fa'; // Add eye icons
-import NavBar from '@/components/NavBar'; // Adjust path as needed
-
-export default function LoginPage() {
+import { useRouter } from 'next/navigation';
+import NavBar from '@/components/NavBar'; 
+export default function AuthPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
-  const [showPassword, setShowPassword] = useState(false); // Add password reveal state
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { email, password } = formData;
-
-    if (!email || !password) {
-      setError('All fields are required.');
-      setSuccess('');
-      return;
-    }
-
+  
+  const handleGoogleAuth = async (action) => {
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      const response = await fetch('https://note-weave-y0vf.onrender.com/auth/login', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies for authentication
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && response.status === 200) {
-        setSuccess(data.message || 'Login successful!');
-        setError('');
-        setTimeout(() => {
-          router.push('/home');
-        }, 1500);
-      } else {
-        setError(data.message || 'Failed to login. Please check your credentials.');
-        setSuccess('');
-      }
-    } catch (err) {
-      setError('An error occurred. Please check your connection and try again.');
-      setSuccess('');
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle Google Login by fetching the redirect URL
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await fetch('https://note-weave-y0vf.onrender.com/auth/google', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
@@ -87,37 +24,24 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch Google login URL');
+        throw new Error('Failed to fetch Google auth URL');
       }
 
       const data = await response.json();
       const redirectUrl = data.redirect_url;
 
       if (redirectUrl) {
-        // Redirect the user to the Google authorization URL
         window.location.href = redirectUrl;
       } else {
         throw new Error('No redirect URL received from server');
       }
     } catch (err) {
-      setError('Failed to initiate Google login: ' + err.message);
-      console.error('Google login error:', err);
+      setError(`Failed to initiate Google ${action}: ${err.message}`);
+      console.error(`Google ${action} error:`, err);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleSocialLogin = (provider) => {
-    if (provider === 'Google') {
-      handleGoogleLogin();
-    } else if (provider === 'Facebook') {
-      console.log(`Logging in with ${provider}`);
-      // Implement Facebook login logic if needed
-    }
-  };
-
-  // Handle callback after Google login (automatic via backend redirect)
-  // Note: The backend will handle the callback and set the cookie, so no additional client-side logic is needed here.
 
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-r from-teal-700 to-teal-500 overflow-hidden">
@@ -128,7 +52,7 @@ export default function LoginPage() {
           <div className="md:w-1/2 bg-teal-600 text-white p-8 flex flex-col justify-center items-start">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Simplify note-taking with NoteWeave.</h2>
             <p className="text-white/80 mb-6 text-sm md:text-base">
-              Organize, edit and export your thoughts beautifully with our web editor.
+              Organize, edit, and export your thoughts beautifully with our web editor.
             </p>
             <img
               src="/login_hero.png"
@@ -137,10 +61,10 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Right side - Login Form */}
+          {/* Right side - Auth Section */}
           <div className="md:w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">Welcome Back</h2>
-            <p className="text-sm text-gray-500 mb-4 md:mb-6">Please login to your account</p>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">Welcome to NoteWeave</h2>
+            <p className="text-sm text-gray-500 mb-4 md:mb-6">Sign in or sign up with Google</p>
 
             {error && (
               <div className="mb-4 text-sm text-red-600 bg-red-50 p-2 rounded-lg">
@@ -153,85 +77,81 @@ export default function LoginPage() {
               </div>
             )}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                disabled={loading}
-              />
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Password"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 md:py-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-teal-600 hover:text-teal-700 focus:outline-none"
-                  disabled={loading}
-                >
-                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
-                </button>
-              </div>
-              <div className="text-right text-sm">
-                <a href="#" className="text-teal-600 hover:underline">
-                  Forgot password?
-                </a>
-              </div>
-
+            
+            <div className="flex flex-col gap-4">
               <button
-                type="submit"
-                className={`w-full bg-teal-600 text-white font-semibold py-2 md:py-3 rounded-lg transition flex items-center justify-center ${
-                  loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-teal-700'
+                onClick={() => handleGoogleAuth('login')}
+                className={`flex items-center justify-center gap-3 w-full py-2.5 px-4 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 disabled={loading}
               >
-                {loading ? (
-                  <div className="spinner"></div>
-                ) : (
-                  'Login'
-                )}
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.01.68-2.3 1.09-3.71 1.09-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C4 20.65 7.67 23 12 23z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.67 1 4 3.35 2.18 7.07l3.66 2.84c.87-2.6 3.30-4.53 6.16-4.53z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                Sign in with Google
               </button>
-            </form>
-
-            {/* Social login */}
-            <div className="my-4 md:my-6 flex items-center gap-4">
-              <div className="flex-grow h-px bg-gray-200" />
-              <span className="text-gray-400 text-sm">Or Login with</span>
-              <div className="flex-grow h-px bg-gray-200" />
-            </div>
-
-            <div className="flex gap-4 flex-col sm:flex-row">
               <button
-                onClick={() => handleSocialLogin('Google')}
-                className="flex items-center justify-center gap-2 border w-full py-2 md:py-3 rounded-lg hover:bg-gray-50 transition"
+                onClick={() => handleGoogleAuth('signup')}
+                className={`flex items-center justify-center gap-3 w-full py-2.5 px-4 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
                 disabled={loading}
               >
-                <FaGoogle className="text-red-500" /> Google
-              </button>
-              <button
-                onClick={() => handleSocialLogin('Facebook')}
-                className="flex items-center justify-center gap-2 border w-full py-2 md:py-3 rounded-lg hover:bg-gray-50 transition"
-                disabled={loading}
-              >
-                <FaFacebookF className="text-blue-600" /> Facebook
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.01.68-2.3 1.09-3.71 1.09-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C4 20.65 7.67 23 12 23z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.67 1 4 3.35 2.18 7.07l3.66 2.84c.87-2.6 3.30-4.53 6.16-4.53z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                Sign up with Google
               </button>
             </div>
 
             <p className="mt-4 md:mt-6 text-sm text-center text-gray-500">
-              Don’t have an account?{' '}
-              <a href="/signup" className="text-teal-600 font-medium hover:underline">
-                Signup
-              </a>
+              By continuing, you agree to our{' '}
+              <a href="#" className="text-teal-600 hover:underline">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-teal-600 hover:underline">
+                Privacy Policy
+              </a>.
             </p>
           </div>
         </div>
